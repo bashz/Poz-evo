@@ -1,0 +1,22 @@
+/* 
+    Created on : 31 mai 2015, 02:55:59
+    Author     : bechir
+*/
+body{
+    margin: 0;
+}
+#game{
+    width: -moz-available;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    display: block;
+    position: fixed;
+}
+body svg {
+    background: #000;
+}
+circle{
+    stroke: #fff;
+}
