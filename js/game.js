@@ -1,5 +1,5 @@
 var width = document.getElementById("game").offsetWidth,
-	height = document.getElementById("game").offsetHeight;
+height = document.getElementById("game").offsetHeight;
 
 var ID = 0;
 var pozes = [];
@@ -21,12 +21,12 @@ Poz = function(r, g, b, gen, x, y, gender, id, victories, vx, vy){
   this.init = function(selection, poz){
   	this.graph = selection.append("g");
   	this.graph.append("circle")
-  		.attr("r", 16)
-  		.attr("fill", "rgb(" + this.r + "," + this.g + "," + this.b + ")");
-  	this.graph.append("text")
-  		.attr("x", -6)
-  		.attr("y", 6)
-  		.text(this.gender ? "M" : "F");
+    .attr("r", 16)
+    .attr("fill", "rgb(" + this.r + "," + this.g + "," + this.b + ")");
+    this.graph.append("text")
+    .attr("x", -6)
+    .attr("y", 6)
+    .text(this.gender ? "M" : "F");
   }
   this.destroy = function(){
   	this.graph.remove();
@@ -61,28 +61,19 @@ function boundry(){
   return arguments
 }
 
-// var t = [
-// {r:0,g:0,b:0},{r:0,g:0,b:128},{r:0,g:0,b:255},{r:0,g:128,b:0},{r:0,g:128,b:128},{r:0,g:128,b:255},{r:0,g:255,b:0},{r:0,g:255,b:128},{r:0,g:255,b:255},
-// {r:128,g:0,b:0},{r:128,g:0,b:128},{r:128,g:0,b:255},{r:128,g:128,b:0},{r:128,g:128,b:128},{r:128,g:128,b:255},{r:128,g:255,b:0},{r:128,g:255,b:128},{r:128,g:255,b:255},
-// {r:255,g:0,b:0},{r:255,g:0,b:128},{r:255,g:0,b:255},{r:255,g:128,b:0},{r:255,g:128,b:128},{r:255,g:128,b:255},{r:255,g:255,b:0},{r:255,g:255,b:128},{r:255,g:255,b:255}
-//        ];
 var t= [{r:255,g:0,b:0},{r:255,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:255},{r:0,g:0,b:255},{r:255,g:0,b:255}];
-//var t= [{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},
-//		{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},
-//		{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255}];
-//var t = [{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0}];
 
 init = function(){
 	d3.select("#game svg").remove();
 	var svg = d3.select("#game").append("svg")
-            .attr("width", width)
-            .attr("height", height);
-    for(var i = 0; i < t.length; i++){
-        var poz = new Poz(t[i].r, t[i].g, t[i].b);
-        poz.init(svg);
-        pozes.push(poz);
-    }
-    simulate(svg);
+  .attr("width", width)
+  .attr("height", height);
+  for(var i = 0; i < t.length; i++){
+    var poz = new Poz(t[i].r, t[i].g, t[i].b);
+    poz.init(svg);
+    pozes.push(poz);
+  }
+  simulate(svg);
 }
 
 simulate = function(svg){
@@ -91,7 +82,6 @@ simulate = function(svg){
 	dispatch.on("collide", function (poza, pozi) {
 		poza.inactive = 60;
 		pozi.inactive = 60;
-		console.log(poza.gender, pozi.gender);console.log(poza.gender !== pozi.gender);
 		if(poza.gender !== pozi.gender){
 			var p = reproduce(poza, pozi);
 			p.init(svg);
@@ -106,13 +96,15 @@ simulate = function(svg){
 				pozi.victories++;
 				index = pozes.map(function(e) { return e.id; }).indexOf(poza.id);
 			}
-			pozes[index].destroy();
-			pozes.splice(index, 1);
-		}
-	});
+      if(pozes[index]){
+       pozes[index].destroy();
+       pozes.splice(index, 1);
+     }
+   }
+ });
 	var Timer = d3.timer(function Timer() {
 		for(var i = 0; i < markedCollisions.length; i++){
-			dispatch.collide(markedCollisions[i][0], markedCollisions[i][1]);
+			dispatch.call("collide", null, markedCollisions[i][0], markedCollisions[i][1]);
 		}
 		markedCollisions = [];
 		pozes.forEach(function (poz, index) {
@@ -120,18 +112,17 @@ simulate = function(svg){
 			poz.y += poz.vy;
 			if(poz.inactive) poz.inactive--;
 			if (poz.x < 0 || poz.x > width)
-	          	poz.vx *= -1;
-	        if (poz.y < 0 || poz.y > height)
-	          	poz.vy *= -1;
-            poz.graph.attr("transform", "translate(" + poz.x + "," + poz.y + ")");
-            for(var i = index + 1; i < pozes.length; i++){
-            	if (Math.sqrt((poz.x - pozes[i].x) * (poz.x - pozes[i].x) + (poz.y - pozes[i].y) * (poz.y - pozes[i].y)) <= 16 && !poz.inactive && !pozes[i].inactive){
-            		markedCollisions.push([poz, pozes[i]]);
-            	}
-            }
-		});
-
+        poz.vx *= -1;
+      if (poz.y < 0 || poz.y > height)
+        poz.vy *= -1;
+      poz.graph.attr("transform", "translate(" + poz.x + "," + poz.y + ")");
+      for(var i = index + 1; i < pozes.length; i++){
+       if (Math.sqrt((poz.x - pozes[i].x) * (poz.x - pozes[i].x) + (poz.y - pozes[i].y) * (poz.y - pozes[i].y)) <= 16 && !poz.inactive && !pozes[i].inactive){
+        markedCollisions.push([poz, pozes[i]]);
+      }
+    }
+  });
 	});
 }
 
-init();
+//init();
