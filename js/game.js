@@ -66,11 +66,23 @@ function boundry(){
 // {r:128,g:0,b:0},{r:128,g:0,b:128},{r:128,g:0,b:255},{r:128,g:128,b:0},{r:128,g:128,b:128},{r:128,g:128,b:255},{r:128,g:255,b:0},{r:128,g:255,b:128},{r:128,g:255,b:255},
 // {r:255,g:0,b:0},{r:255,g:0,b:128},{r:255,g:0,b:255},{r:255,g:128,b:0},{r:255,g:128,b:128},{r:255,g:128,b:255},{r:255,g:255,b:0},{r:255,g:255,b:128},{r:255,g:255,b:255}
 //        ];
-var t= [{r:255,g:0,b:0},{r:255,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:255},{r:0,g:0,b:255},{r:255,g:0,b:255}];
+var t = [{r:255,g:0,b:0},{r:255,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:255},{r:0,g:0,b:255},{r:255,g:0,b:255}];
 //var t= [{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},{r:255,g:0,b:0},
 //		{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},{r:0,g:255,b:0},
 //		{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255},{r:0,g:0,b:255}];
-//var t = [{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0},{r:0,g:0,b:0}];
+//var t = [{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},
+//        {r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},
+//        {r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255},{r:255,g:255,b:255}];
+
+compileStats = function(pozes, i){
+  if(!!pozes){
+    var red = Math.round(pozes.map(function(d){return d.r}).reduce(function(a, b) { return a + b; }, 0) / pozes.length).toString(16);
+    var green = Math.round(pozes.map(function(d){return d.g}).reduce(function(a, b) { return a + b; }, 0) / pozes.length).toString(16);
+    var blue = Math.round(pozes.map(function(d){return d.b}).reduce(function(a, b) { return a + b; }, 0) / pozes.length).toString(16);
+    return {i:i, color:"#" + red + green + blue, total: pozes.length};
+  }
+  return {i:i, color:"#000000", total: 0};
+}
 
 init = function(){
 	d3.select("#game svg").remove();
@@ -84,14 +96,13 @@ init = function(){
     }
     simulate(svg);
 }
-
+var dispatch = d3.dispatch("collide", "step");
 simulate = function(svg){
-	var markedCollisions = [];
-	var dispatch = d3.dispatch("collide");
+	var markedCollisions = []; iteration = 0;
+	
 	dispatch.on("collide", function (poza, pozi) {
 		poza.inactive = 60;
 		pozi.inactive = 60;
-		console.log(poza.gender, pozi.gender);console.log(poza.gender !== pozi.gender);
 		if(poza.gender !== pozi.gender){
 			var p = reproduce(poza, pozi);
 			p.init(svg);
@@ -106,13 +117,17 @@ simulate = function(svg){
 				pozi.victories++;
 				index = pozes.map(function(e) { return e.id; }).indexOf(poza.id);
 			}
-			pozes[index].destroy();
-			pozes.splice(index, 1);
+      if(pozes[index]){
+			  pozes[index].destroy();
+			  pozes.splice(index, 1);
+      }
 		}
+    dispatch.call("step", null, compileStats(pozes, iteration));
 	});
+
 	var Timer = d3.timer(function Timer() {
 		for(var i = 0; i < markedCollisions.length; i++){
-			dispatch.collide(markedCollisions[i][0], markedCollisions[i][1]);
+			dispatch.call("collide", null, markedCollisions[i][0], markedCollisions[i][1]);
 		}
 		markedCollisions = [];
 		pozes.forEach(function (poz, index) {
@@ -130,8 +145,10 @@ simulate = function(svg){
             	}
             }
 		});
-
+    // if(markedCollisions.length)
+    //   dispatch.call("step", null, compileStats(pozes, iteration));
+    iteration++;
 	});
 }
 
-init();
+//init();

@@ -2,10 +2,10 @@
     Created on : 31 mai 2015, 02:55:59
     Author     : bechir
 */
-body{
+body {
     margin: 0;
 }
-#game{
+#game {
     width: -moz-available;
     width: 100%;
     height: 100%;
@@ -13,10 +13,20 @@ body{
     padding: 0;
     display: block;
     position: fixed;
-}
-body svg {
     background: #000;
 }
-circle{
+#stat {
+    position: absolute;
+    width: 500px;
+    height: 300px;
+    right: 0px;
+    box-shadow: -4px 0px 5px #ffffff;
+    background: none;
+    /*display: none;*/
+}
+body svg {
+    
+}
+circle {
     stroke: #fff;
 }
